@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Вишлист</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #DBD8D1;
+    --wine: #460203;
+    --fog: #567D9D;
+    --stone: #8A8579;
+    --brick: #8C4A44;
+    --slate: #3A2E2C;
+    --red: #460203;
+    --orange: #8C4A44;
+    --taupe: #8A8579;
+    --blue: #567D9D;
+    --cream: #DBD8D1;
+    --bg: #F3F1ED;
+    --card: #FFFFFF;
+    --text: #2B2320;
+    --muted: #8B857D;
+    --radius: 20px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Manrope', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding-bottom: 60px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  header {
+    padding: 48px 20px 34px;
+    text-align: center;
+    background: linear-gradient(120deg, var(--wine), var(--brick), var(--fog), var(--stone), var(--wine));
+    background-size: 300% 300%;
+    animation: shimmer 12s ease infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  header h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(2rem, 6vw, 2.8rem);
+    font-weight: 700;
+    letter-spacing: -1px;
+    color: #FFFFFF;
+    text-shadow: 0 2px 12px rgba(43,42,40,0.25);
+  }
+
+  .wrap {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+
+  .add-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 22px;
+    margin-top: -20px;
+    margin-bottom: 36px;
+    box-shadow: 0 10px 30px rgba(103,60,52,0.14);
+    position: relative;
+    z-index: 2;
+  }
+
+  .add-card h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .form-grid input, .form-grid select { width: 100%; }
+
+  input, select {
+    padding: 12px 14px;
+    border: 2px solid #ECE9E3;
+    border-radius: 12px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.95rem;
+    background: #FBFAF8;
+    color: var(--text);
+    transition: border-color 0.2s;
+  }
+
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--orange);
+  }
+
+  .full-row { margin-bottom: 10px; }
+  .full-row input { width: 100%; }
+
+  .btn-add {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(90deg, var(--wine), var(--brick));
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 0.98rem;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    margin-top: 4px;
+  }
+
+  .btn-add:hover { opacity: 0.88; }
+  .btn-add:active { transform: scale(0.98); }
+
+  .sync-bar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+
+  .sync-btn {
+    flex: 1;
+    min-width: 120px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 2px solid #ECE9E3;
+    background: var(--card);
+    color: var(--slate);
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .sync-btn:hover { border-color: var(--fog); }
+
+  .sync-btn.primary {
+    background: var(--slate);
+    border-color: var(--slate);
+    color: white;
+  }
+
+  .sync-btn.primary:hover { opacity: 0.88; }
+
+  .sync-msg {
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--fog);
+    font-weight: 600;
+    min-height: 18px;
+    margin-bottom: 14px;
+    transition: opacity 0.3s;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    margin-bottom: 24px;
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+
+  .tab {
+    flex: 0 0 auto;
+    padding: 10px 18px;
+    border-radius: 30px;
+    background: var(--card);
+    color: var(--accent, var(--text));
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border: 2px solid var(--accent, transparent);
+    white-space: nowrap;
+    transition: all 0.2s;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  .tab.active { background: var(--accent, var(--slate)); border-color: var(--accent, var(--slate)); color: white; }
+  .tab.active[data-all="true"] {
+    background: var(--slate);
+    border-color: var(--slate);
+  }
+  .tab-count { opacity: 0.6; font-weight: 500; margin-left: 4px; }
+
+  .category-block { margin-bottom: 36px; }
+
+  .category-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+    padding-left: 4px;
+    color: var(--accent, var(--slate));
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+  }
+
+  .item {
+    background: var(--card);
+    border-radius: 18px;
+    padding: 18px;
+    border-top: 5px solid var(--accent, var(--slate));
+    position: relative;
+    box-shadow: 0 4px 16px rgba(103,60,52,0.08);
+    transition: transform 0.15s, box-shadow 0.15s;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 26px color-mix(in srgb, var(--accent, var(--slate)) 35%, transparent);
+  }
+
+  .item.bought { opacity: 0.5; }
+  .item.bought .item-title { text-decoration: line-through; }
+
+  .item-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .item-title {
+    font-weight: 700;
+    font-size: 1.02rem;
+    line-height: 1.3;
+    word-break: break-word;
+  }
+
+  .delete-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 2px 4px;
+    line-height: 1;
+    flex-shrink: 0;
+    border-radius: 6px;
+  }
+  .delete-btn:hover { color: var(--red); background: #F7E4E1; }
+
+  .item-price {
+    display: inline-block;
+    align-self: flex-start;
+    background: var(--accent-soft, var(--blue));
+    color: var(--accent, var(--slate));
+    font-weight: 700;
+    font-size: 0.88rem;
+    padding: 4px 12px;
+    border-radius: 20px;
+  }
+
+  .item-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: auto;
+    align-items: center;
+  }
+
+  .item-link {
+    flex: 1;
+    text-align: center;
+    padding: 9px 10px;
+    border-radius: 10px;
+    background: var(--bg);
+    color: var(--slate);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.85rem;
+    border: 2px solid #ECE9E3;
+    transition: all 0.2s;
+  }
+  .item-link:hover { border-color: var(--accent, var(--orange)); }
+
+  .buy-toggle {
+    padding: 9px 14px;
+    border-radius: 10px;
+    border: 2px solid #ECE9E3;
+    background: white;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--muted);
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .buy-toggle.active {
+    background: var(--accent, var(--red));
+    border-color: var(--accent, var(--red));
+    color: white;
+  }
+
+  .empty-cat {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: var(--muted);
+    padding: 30px 10px;
+    font-size: 0.9rem;
+    background: var(--card);
+    border-radius: 16px;
+    border: 2px dashed #E3DFD8;
+  }
+
+  .empty-all {
+    text-align: center;
+    color: var(--muted);
+    padding: 60px 20px;
+    font-size: 1rem;
+  }
+
+  footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.82rem;
+    margin-top: 30px;
+    padding: 0 20px;
+  }
+
+  @media (max-width: 480px) {
+    .form-grid { grid-template-columns: 1fr; }
+    header { padding: 36px 16px 24px; }
+    .item { padding: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Вишлист</h1>
+</header>
+
+<div class="wrap">
+
+  <div class="add-card">
+    <h2>Добавить вещь</h2>
+    <div class="full-row">
+      <input type="text" id="titleInput" placeholder="Название вещи *" />
+    </div>
+    <div class="form-grid">
+      <input type="text" id="priceInput" placeholder="Цена" />
+      <select id="categoryInput">
+        <option value="Одежда">Одежда</option>
+        <option value="Техника">Техника</option>
+        <option value="Дом">Дом</option>
+        <option value="Прикольные штучки">Прикольные штучки</option>
+      </select>
+    </div>
+    <div class="full-row">
+      <input type="url" id="linkInput" placeholder="Ссылка на товар" />
+    </div>
+    <button class="btn-add" onclick="addItem()">Добавить</button>
+  </div>
+
+  <div class="sync-bar">
+    <button class="sync-btn" onclick="exportData()">Скачать backup</button>
+    <button class="sync-btn" onclick="document.getElementById('importFile').click()">Загрузить backup</button>
+    <button class="sync-btn primary" onclick="copyShareLink()">Скопировать ссылку</button>
+    <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importData(this.files[0])" />
+  </div>
+  <div id="syncMsg" class="sync-msg"></div>
+
+  <div class="tabs" id="tabs"></div>
+
+  <div id="content"></div>
+
+  <footer>список хранится в этом браузере — используйте кнопки выше, чтобы перенести его на другое устройство</footer>
+
+</div>
+
+<script>
+  const CATEGORIES = ["Одежда", "Техника", "Дом", "Прикольные штучки"];
+  const CATEGORY_COLORS = {
+    "Одежда": { accent: "#460203", soft: "#EBD8D8" },
+    "Техника": { accent: "#567D9D", soft: "#DEE9F0" },
+    "Дом": { accent: "#8A8579", soft: "#ECEAE4" },
+    "Прикольные штучки": { accent: "#8C4A44", soft: "#F1E1DE" }
+  };
+  let items = [];
+  let activeTab = "Все";
+
+  try {
+    const saved = localStorage.getItem('wishlist_items_v2');
+    if (saved) items = JSON.parse(saved);
+  } catch (e) { console.error(e); }
+
+  function save() {
+    try {
+      localStorage.setItem('wishlist_items_v2', JSON.stringify(items));
+    } catch (e) { console.error(e); }
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function addItem() {
+    const title = document.getElementById('titleInput').value.trim();
+    if (!title) {
+      document.getElementById('titleInput').focus();
+      return;
+    }
+    items.push({
+      id: Date.now(),
+      title,
+      price: document.getElementById('priceInput').value.trim(),
+      link: document.getElementById('linkInput').value.trim(),
+      category: document.getElementById('categoryInput').value,
+      bought: false,
+      createdAt: Date.now()
+    });
+    save();
+
+    document.getElementById('titleInput').value = '';
+    document.getElementById('priceInput').value = '';
+    document.getElementById('linkInput').value = '';
+
+    render();
+  }
+
+  function toggleBought(id) {
+    const item = items.find(i => i.id === id);
+    if (item) item.bought = !item.bought;
+    save();
+    render();
+  }
+
+  function deleteItem(id) {
+    items = items.filter(i => i.id !== id);
+    save();
+    render();
+  }
+
+  function setTab(tab) {
+    activeTab = tab;
+    render();
+  }
+
+  function renderTabs() {
+    const tabsEl = document.getElementById('tabs');
+    const allTabs = ["Все", ...CATEGORIES];
+    tabsEl.innerHTML = allTabs.map(tab => {
+      const count = tab === "Все" ? items.length : items.filter(i => i.category === tab).length;
+      const colors = CATEGORY_COLORS[tab];
+      const style = colors ? `style="--accent:${colors.accent}"` : '';
+      const allAttr = tab === "Все" ? 'data-all="true"' : '';
+      return `<div class="tab ${activeTab === tab ? 'active' : ''}" ${style} ${allAttr} onclick="setTab('${tab.replace(/'/g, "\\'")}')">
+        ${tab}<span class="tab-count">${count}</span>
+      </div>`;
+    }).join('');
+  }
+
+  function renderItemCard(item) {
+    const colors = CATEGORY_COLORS[item.category] || {};
+    const style = `style="--accent:${colors.accent || ''};--accent-soft:${colors.soft || ''}"`;
+    return `
+      <div class="item ${item.bought ? 'bought' : ''}" ${style}>
+        <div class="item-top">
+          <div class="item-title">${escapeHtml(item.title)}</div>
+          <button class="delete-btn" onclick="deleteItem(${item.id})" title="Удалить">✕</button>
+        </div>
+        ${item.price ? `<span class="item-price">${escapeHtml(item.price)}</span>` : ''}
+        <div class="item-actions">
+          ${item.link ? `<a class="item-link" href="${escapeHtml(item.link)}" target="_blank" rel="noopener">Открыть</a>` : ''}
+          <button class="buy-toggle ${item.bought ? 'active' : ''}" onclick="toggleBought(${item.id})">
+            ${item.bought ? 'Куплено' : 'Купить'}
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  function render() {
+    renderTabs();
+    const content = document.getElementById('content');
+
+    if (items.length === 0) {
+      content.innerHTML = '<div class="empty-all">Пока пусто. Добавьте первую вещь выше.</div>';
+      return;
+    }
+
+    const categoriesToShow = activeTab === "Все" ? CATEGORIES : [activeTab];
+
+    let html = '';
+    categoriesToShow.forEach(cat => {
+      const catItems = items
+        .filter(i => i.category === cat)
+        .sort((a, b) => (a.bought - b.bought) || (b.createdAt - a.createdAt));
+
+      if (activeTab !== "Все" || catItems.length > 0) {
+        const colors = CATEGORY_COLORS[cat] || {};
+        html += `<div class="category-block">
+          <div class="category-title" style="--accent:${colors.accent || ''}">${cat}</div>
+          <div class="grid">
+            ${catItems.length > 0
+              ? catItems.map(renderItemCard).join('')
+              : '<div class="empty-cat">Пока ничего нет</div>'}
+          </div>
+        </div>`;
+      }
+    });
+
+    content.innerHTML = html;
+  }
+
+  document.getElementById('titleInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') addItem();
+  });
+
+  function showSyncMsg(text) {
+    const el = document.getElementById('syncMsg');
+    el.textContent = text;
+    el.style.opacity = '1';
+    setTimeout(() => { el.style.opacity = '0'; }, 3500);
+  }
+
+  function exportData() {
+    const blob = new Blob([JSON.stringify(items, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'wishlist-backup.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    showSyncMsg('Backup скачан');
+  }
+
+  function importData(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const parsed = JSON.parse(e.target.result);
+        if (!Array.isArray(parsed)) throw new Error('bad format');
+        const merge = confirm('Добавить к текущему списку? Отмена — заменить список полностью.');
+        if (merge) {
+          items = items.concat(parsed);
+        } else {
+          items = parsed;
+        }
+        save();
+        render();
+        showSyncMsg('Список загружен');
+      } catch (err) {
+        alert('Не удалось прочитать файл. Убедитесь, что это backup из этого вишлиста.');
+      }
+    };
+    reader.readAsText(file);
+    document.getElementById('importFile').value = '';
+  }
+
+  function copyShareLink() {
+    const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(items))));
+    const base = location.href.split('#')[0];
+    const url = `${base}#data=${encoded}`;
+    navigator.clipboard.writeText(url).then(() => {
+      showSyncMsg('Ссылка скопирована — откройте её на другом устройстве');
+    }).catch(() => {
+      prompt('Скопируйте ссылку вручную:', url);
+    });
+  }
+
+  function loadFromHash() {
+    if (location.hash.startsWith('#data=')) {
+      try {
+        const encoded = location.hash.replace('#data=', '');
+        const parsed = JSON.parse(decodeURIComponent(escape(atob(encoded))));
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const apply = confirm(`В ссылке найден список из ${parsed.length} вещей. Загрузить его? (текущий список будет заменён)`);
+          if (apply) {
+            items = parsed;
+            save();
+          }
+        }
+      } catch (e) {
+        console.error('Не удалось разобрать данные из ссылки', e);
+      }
+      history.replaceState(null, '', location.pathname);
+    }
+  }
+
+  loadFromHash();
+  render();
+</script>
+</body>
+</html>
